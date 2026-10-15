@@ -152,6 +152,9 @@ export default {
         this.lyricsloaded = true;
       } catch (error) {
         console.error("Failed to load lyrics:", error);
+        //歌词拉取失败时不再阻塞界面
+        this.lyrics = [];
+        this.lyricsloaded = true;
       }
     },
     // 解析歌词

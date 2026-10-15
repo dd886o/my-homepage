@@ -187,6 +187,15 @@ export default {
 
     audioPlayer() {
       return this.$refs.audioPlayer;
+    },
+
+    //音乐接口源，config 未配置时回退到默认源
+    musicSources() {
+      const sources = this.configdata?.musicPlayer?.sources;
+      if (Array.isArray(sources) && sources.length) {
+        return sources;
+      }
+      return [{ name: 'injahow', url: 'https://api.injahow.cn/meting/', fields: { title: 'name', author: 'artist' } }];
     }
   },
   
@@ -269,18 +278,48 @@ export default {
     
     async getMusicInfo(){
       this.musicinfoLoading = true;
-      try {
-        const response = await fetch(`https://api.i-meto.com/meting/api?server=${this.configdata.musicPlayer.server}&type=${this.configdata.musicPlayer.type}&id=${this.configdata.musicPlayer.id}`
-        );
-        if (!response.ok) {
-          throw new Error('网络请求失败');
+      this.musicinfo = [];
+      const cfg = this.configdata.musicPlayer || {};
+      //逐步尝试各个音乐接口源，避免单一接口失效导致音乐无法播放
+      for (const source of this.musicSources) {
+        try {
+          const list = await this.fetchMusicList(source, cfg);
+          if (list && list.length) {
+            this.musicinfo = list;
+            this.musicinfoLoading = false;
+			this.initPlaylistStart();
+            return;
+          }
+          console.warn(`[music] ${source.name} 返回的歌单为空，尝试下一个接口`);
+        } catch (error) {
+          console.warn(`[music] ${source.name} 接口请求失败，尝试下一个接口:`, error);
         }
-        this.musicinfo = await response.json();
-        this.musicinfoLoading = false;
-		this.initPlaylistStart();
-      } catch (error) {
-        console.error('请求失败:', error);
       }
+      console.error('[music] 所有音乐接口均不可用');
+      this.musicinfoLoading = false;
+    },
+
+    //按接口源拉取歌单
+    async fetchMusicList(source, cfg){
+      const url = `${source.url}?server=${encodeURIComponent(cfg.server)}&type=${encodeURIComponent(cfg.type)}&id=${encodeURIComponent(cfg.id)}`;
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error('网络请求失败');
+      }
+      const data = await response.json();
+      return this.normalizeMusicList(Array.isArray(data) ? data : [], source);
+    },
+
+    //把不同接口的返回字段统一成 { title, author, url, pic, lrc }
+    normalizeMusicList(list, source){
+      const { title: titleKey, author: authorKey } = source.fields || {};
+      return list.map(item => ({
+        title: item[titleKey] ?? item.title ?? item.name ?? '',
+        author: item[authorKey] ?? item.author ?? item.artist ?? '',
+        url: item.url || '',
+        pic: item.pic || '',
+        lrc: item.lrc || '',
+      })).filter(item => !!item.url);
     },
 
 	initPlaylistStart() {

@@ -79,6 +79,21 @@ const config = {
 		id: '18486273855',  //歌单id ---> music.163.com/#/playlist?id=2028178887
 		randomFirstPlay: true,  //进入页面是否随机播放歌单中的某一首（true开启，若开启则 startIndex 忽略）
 		startIndex: 0,          //不随机时，进入页面可以自定义播放第几首（索引从0开始，若超出歌单长度则自动回落为0）
+
+		//音乐接口源：按顺序尝试，取到非空歌单即止。某个源挂掉时可直接在数组里调整顺序或增删
+		//fields 用于把不同接口返回的字段名映射成组件统一使用的 title / author
+		sources: [
+			{
+				name: 'injahow',
+				url: 'https://api.injahow.cn/meting/',
+				fields: { title: 'name', author: 'artist' },
+			},
+			{
+				name: 'i-meto',
+				url: 'https://api.i-meto.com/meting/api',
+				fields: { title: 'title', author: 'author' },
+			},
+		],
 	},
 
 	//壁纸数据 -----可以将壁纸文件上传到图床获取网络直链。若想调用api，请前往脚本自行修改逻辑
