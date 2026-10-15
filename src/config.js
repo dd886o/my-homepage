@@ -30,16 +30,16 @@ const config = {
 			"type": "pic",   //"pic":静态壁纸;"video":动态壁纸
 			"datainfo": {
 				"title": "灵活",
-				"preview": "IMG_20261013_201403.jpg",  //预览图，当然也可填写网络地址
-				"url": "IMG_20261013_201403.jpg",     //当然，也可填写网络地址或壁纸api，如随机PC壁纸api："url":"https://t.mwm.moe/pc"
+				"preview": "/IMG_20261013_201403.jpg",  //预览图，当然也可填写网络地址
+				"url": "/IMG_20261013_201403.jpg",     //当然，也可填写网络地址或壁纸api，如随机PC壁纸api："url":"https://t.mwm.moe/pc"
 			},
 		},
 		"mobile": {   //移动端
 			"type": "pic",
 			"datainfo": {
 				"title": "0001",
-				"preview": "mmexport1771507384418.jpg",
-				"url": "mmexport1771507384418.jpg"  //同理，随机移动端壁纸："url":"https://t.mwm.moe/mp"
+				"preview": "/mmexport1771507384418.jpg",
+				"url": "/mmexport1771507384418.jpg"  //同理，随机移动端壁纸："url":"https://t.mwm.moe/mp"
 			}
 		}
 
