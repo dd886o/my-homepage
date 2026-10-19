@@ -29,6 +29,7 @@ export default {
       dialog2: false,
       personalizedtags: null,
       videosrc: '',
+      currentBgUrl: '',
       ismusicplayer: false,
       isPlaying:false,
       playlistIndex: 0,
@@ -127,17 +128,15 @@ export default {
         });
      };
 
-    loadImage().then(() => {
+      loadImage().then(() => {
         this.formattedTime =  this.getFormattedTime(new Date());
         this.formattedDate =  this.getFormattedDate(new Date());
         setTimeout(() => {
           this.isloading = false;
-        }, "500");          
+        }, "500");
       }).catch((err) => {
         console.error('壁纸加载失败:', err);
-        setTimeout(() => {
-          this.isloading = false;
-        }, "100");  
+        this.verifyAndFallbackBackground();
       });
  
       setInterval(() => {
@@ -222,42 +221,86 @@ export default {
       if(leleodatabackground){
         if(xs.value){
           if(leleodatabackground.mobile.type == "pic"){
-            root.style.setProperty('--leleo-background-image-url', `url('${leleodatabackground.mobile.datainfo.url}')`);
-            imageurl = leleodatabackground.mobile.datainfo.url;
+            this.currentBgUrl = leleodatabackground.mobile.datainfo.url;
+            root.style.setProperty('--leleo-background-image-url', `url('${this.currentBgUrl}')`);
+            imageurl = this.currentBgUrl;
             return imageurl;
           }else{
             this.videosrc = leleodatabackground.mobile.datainfo.url;
           }
         }else{
           if(leleodatabackground.pc.type == "pic"){
-            root.style.setProperty('--leleo-background-image-url', `url('${leleodatabackground.pc.datainfo.url}')`);
-            imageurl = leleodatabackground.pc.datainfo.url;
+            this.currentBgUrl = leleodatabackground.pc.datainfo.url;
+            root.style.setProperty('--leleo-background-image-url', `url('${this.currentBgUrl}')`);
+            imageurl = this.currentBgUrl;
             return imageurl;
           }else{
             this.videosrc = leleodatabackground.pc.datainfo.url;
           }
         }
-          
+
       }else{
         if(xs.value){
           if(this.configdata.background.mobile.type == "pic"){
-            root.style.setProperty('--leleo-background-image-url', `url('${this.configdata.background.mobile.datainfo.url}')`);
-            imageurl = this.configdata.background.mobile.datainfo.url;
+            this.currentBgUrl = this.configdata.background.mobile.datainfo.url;
+            root.style.setProperty('--leleo-background-image-url', `url('${this.currentBgUrl}')`);
+            imageurl = this.currentBgUrl;
             return imageurl;
           }else{
             this.videosrc = this.configdata.background.mobile.datainfo.url;
           }
         }else{
           if(this.configdata.background.pc.type == "pic"){
-            root.style.setProperty('--leleo-background-image-url', `url('${this.configdata.background.pc.datainfo.url}')`);
-            imageurl = this.configdata.background.pc.datainfo.url;
+            this.currentBgUrl = this.configdata.background.pc.datainfo.url;
+            root.style.setProperty('--leleo-background-image-url', `url('${this.currentBgUrl}')`);
+            imageurl = this.currentBgUrl;
             return imageurl;
           }else{
             this.videosrc = this.configdata.background.pc.datainfo.url;
           }
-          
+
         }
       }
+    },
+
+    // 将壁纸地址写入 CSS 变量
+    applyBackgroundImage(url){
+      this.currentBgUrl = url;
+      document.documentElement.style.setProperty('--leleo-background-image-url', `url('${url}')`);
+    },
+
+    // 获取配置文件中的默认壁纸地址（按当前设备类型）
+    getDefaultBackgroundUrl(){
+      const bg = this.configdata.background;
+      const target = this.xs ? bg.mobile : bg.pc;
+      return target && target.type === 'pic' ? target.datainfo.url : '';
+    },
+
+    // 壁纸加载失败时的兜底：确认当前壁纸确实无法加载后，回退到配置文件中的默认壁纸，避免背景变灰
+    verifyAndFallbackBackground(){
+      const url = this.currentBgUrl;
+      if(!url){
+        this.isloading = false;
+        return;
+      }
+      const img = new Image();
+      img.onload = () => {
+        //壁纸其实可以加载，正常显示页面
+        this.isloading = false;
+      };
+      img.onerror = () => {
+        const fallbackUrl = this.getDefaultBackgroundUrl();
+        if(fallbackUrl && fallbackUrl !== url){
+          console.warn('当前壁纸加载失败，已自动回退到默认壁纸:', fallbackUrl);
+          this.applyBackgroundImage(fallbackUrl);
+          const fb = new Image();
+          fb.onload = fb.onerror = () => { this.isloading = false; };
+          fb.src = fallbackUrl;
+        }else{
+          this.isloading = false;
+        }
+      };
+      img.src = url;
     },
 
     projectcardsShow(key){
