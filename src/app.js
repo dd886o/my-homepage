@@ -267,12 +267,19 @@ export default {
       }
     },
 
-    // 修正历史遗留的根绝对路径地址（如 "/IMG_20261013_201403.jpg"）
+    // 修正历史遗留的失效地址（如 "/IMG_xxx.jpg" 或 "https://域名/IMG_xxx.jpg"）
     // GitHub Pages 部署在子路径时，这类地址会指向域名根目录而 404，需改写为当前部署基址
     normalizeUrl(url){
       if(!url || typeof url !== 'string') return url;
-      // 网络地址、data URI、协议相对地址保持原样
-      if(/^(https?:)?\/\//i.test(url) || url.startsWith('data:')) return url;
+      if(url.startsWith('data:')) return url;
+      try{
+        // 同域名、但路径不在当前部署子路径内的地址（多由旧 cookie / 旧配置遗留），改写到当前基址下
+        const u = new URL(url, document.baseURI);
+        const sub = BASE_URL === '/' ? '' : BASE_URL.replace(/\/+$/, '');
+        if(u.origin === location.origin && sub && !u.pathname.startsWith(sub + '/')){
+          return BASE_URL + u.pathname.replace(/^\/+/, '');
+        }
+      }catch(e){ /* 解析失败则走下面的兜底 */ }
       if(url.startsWith('/')){
         return BASE_URL + url.replace(/^\/+/, '');
       }
