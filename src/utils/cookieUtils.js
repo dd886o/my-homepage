@@ -24,6 +24,7 @@ export function getCookie(name) {
   return null;
 }
   
-export function eraseCookie(name) {   
-  document.cookie = name + '=; Max-Age=-99999999;';  
+export function eraseCookie(name) {
+  // 必须与 setCookie 的 path 一致，否则删除的是另一个路径下的 cookie，旧记录清不掉
+  document.cookie = name + '=; Max-Age=-99999999; path=/;';
 }

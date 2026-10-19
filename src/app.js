@@ -122,7 +122,11 @@ export default {
                 }, "200");  
                 resolve();
               };
-              video.onerror = (err) => {resolve();};
+              video.onerror = (err) => {
+                //视频壁纸加载失败时同样回退到默认图片壁纸，避免背景变灰
+                this.applyBackgroundImage(this.getDefaultBackgroundUrl());
+                resolve();
+              };
             }
           })
         });
@@ -221,46 +225,58 @@ export default {
       if(leleodatabackground){
         if(xs.value){
           if(leleodatabackground.mobile.type == "pic"){
-            this.currentBgUrl = leleodatabackground.mobile.datainfo.url;
+            this.currentBgUrl = this.normalizeUrl(leleodatabackground.mobile.datainfo.url);
             root.style.setProperty('--leleo-background-image-url', `url('${this.currentBgUrl}')`);
             imageurl = this.currentBgUrl;
             return imageurl;
           }else{
-            this.videosrc = leleodatabackground.mobile.datainfo.url;
+            this.videosrc = this.normalizeUrl(leleodatabackground.mobile.datainfo.url);
           }
         }else{
           if(leleodatabackground.pc.type == "pic"){
-            this.currentBgUrl = leleodatabackground.pc.datainfo.url;
+            this.currentBgUrl = this.normalizeUrl(leleodatabackground.pc.datainfo.url);
             root.style.setProperty('--leleo-background-image-url', `url('${this.currentBgUrl}')`);
             imageurl = this.currentBgUrl;
             return imageurl;
           }else{
-            this.videosrc = leleodatabackground.pc.datainfo.url;
+            this.videosrc = this.normalizeUrl(leleodatabackground.pc.datainfo.url);
           }
         }
 
       }else{
         if(xs.value){
           if(this.configdata.background.mobile.type == "pic"){
-            this.currentBgUrl = this.configdata.background.mobile.datainfo.url;
+            this.currentBgUrl = this.normalizeUrl(this.configdata.background.mobile.datainfo.url);
             root.style.setProperty('--leleo-background-image-url', `url('${this.currentBgUrl}')`);
             imageurl = this.currentBgUrl;
             return imageurl;
           }else{
-            this.videosrc = this.configdata.background.mobile.datainfo.url;
+            this.videosrc = this.normalizeUrl(this.configdata.background.mobile.datainfo.url);
           }
         }else{
           if(this.configdata.background.pc.type == "pic"){
-            this.currentBgUrl = this.configdata.background.pc.datainfo.url;
+            this.currentBgUrl = this.normalizeUrl(this.configdata.background.pc.datainfo.url);
             root.style.setProperty('--leleo-background-image-url', `url('${this.currentBgUrl}')`);
             imageurl = this.currentBgUrl;
             return imageurl;
           }else{
-            this.videosrc = this.configdata.background.pc.datainfo.url;
+            this.videosrc = this.normalizeUrl(this.configdata.background.pc.datainfo.url);
           }
 
         }
       }
+    },
+
+    // 修正历史遗留的根绝对路径地址（如 "/IMG_20261013_201403.jpg"）
+    // GitHub Pages 部署在子路径时，这类地址会指向域名根目录而 404，需改写为当前部署基址
+    normalizeUrl(url){
+      if(!url || typeof url !== 'string') return url;
+      // 网络地址、data URI、协议相对地址保持原样
+      if(/^(https?:)?\/\//i.test(url) || url.startsWith('data:')) return url;
+      if(url.startsWith('/')){
+        return BASE_URL + url.replace(/^\/+/, '');
+      }
+      return url;
     },
 
     // 将壁纸地址写入 CSS 变量
