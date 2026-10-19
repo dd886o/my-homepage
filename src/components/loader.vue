@@ -30,7 +30,7 @@
   perspective-origin: 50% 50%;
   perspective: 340px;
   background-size: 10em 10em;
-  background-image: url(/img/loader.svg);
+  background-image: url(../assets/img/loader.svg);
 }
 /* sitNSpin.less */
 @keyframes rotateBefore {

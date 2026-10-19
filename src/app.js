@@ -5,7 +5,7 @@ import tab2 from './components/tabs/tab2.vue';
 import tab3 from './components/tabs/tab3.vue';
 import loader from './components/loader.vue';
 import polarchart from './components/polarchart.vue';
-import config from './config.js';
+import config, { BASE_URL } from './config.js';
 import { getCookie } from './utils/cookieUtils.js';
 import { setMeta,getFormattedTime,getFormattedDate,dataConsole } from './utils/common.js';
 import { useDisplay } from 'vuetify'
@@ -16,7 +16,7 @@ export default {
   },
   setup() {
     const { xs,sm,md } = useDisplay();
-    return { xs,sm,md };
+    return { xs,sm,md,BASE_URL };
   },
   data() {
     return {

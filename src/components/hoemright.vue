@@ -206,8 +206,6 @@ export default {
 </script>
 
 <style scoped>
-@import url(/css/app.less);
-@import url(/css/mobile.less);
 .search-field {
 	border-radius: 22px !important;
 	overflow: hidden;

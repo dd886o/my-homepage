@@ -318,7 +318,6 @@ export default {
 }
 </script>
 <style scoped>
-@import url(/css/mobile.less);
 </style>
 <style scoped>
 video{

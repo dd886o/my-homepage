@@ -10,6 +10,8 @@ lerna-debug.log*
 node_modules
 dist
 dist-ssr
+dist.bak*
+vite.config.js.timestamp-*
 *.local
 
 # Editor directories and files
